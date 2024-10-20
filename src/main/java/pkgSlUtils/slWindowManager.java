@@ -1,11 +1,8 @@
 package pkgSlUtils;
 
-import static pkgDriver.slSpot.*;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.GLFWVidMode;
-import org.lwjgl.opengl.GL;
-import org.lwjgl.system.MemoryStack;
 
 import static org.lwjgl.glfw.GLFW.*;
 
@@ -36,7 +33,6 @@ public class slWindowManager {
             throw new RuntimeException("Failed to create GLFW window");
         }
 
-        // Center the window
         GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         glfwSetWindowPos(glfw_win, (vidMode.width() - width) / 2, (vidMode.height() - height) / 2);
 
