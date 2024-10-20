@@ -43,7 +43,7 @@ public class slWindowManager {
         glfwMakeContextCurrent(glfw_win);
         glfwShowWindow(glfw_win);
 
-        return glfw_win; // Return the window handle
+        return glfw_win;
     }
 
     public static slWindowManager get(){
@@ -77,8 +77,7 @@ public class slWindowManager {
 
 //    public int[] getCurrentWindowSize() {
 //        int[] size = new int[2];
-//        glfwGetFramebufferSize(glfw_win, size);
+//        glfwGetFramebufferSize(glfw_win);
 //        return size;
 //    }
-
 }

@@ -1,8 +1,10 @@
 package pkgDriver;
 
 import pkgSlRenderer.slRenderEngine;
-import static pkgDriver.slSpot.*;
 import pkgSlUtils.slWindowManager;
+
+import static pkgDriver.slSpot.WIN_HEIGHT;
+import static pkgDriver.slSpot.WIN_WIDTH;
 
 public class csc133Driver {
     public static void main(String[] my_args) {

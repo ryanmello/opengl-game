@@ -3,23 +3,27 @@ package pkgSlRenderer;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.opengl.GL;
 import java.util.Random;
+
+import pkgDriver.slSpot;
 import pkgSlUtils.slWindowManager;
 
 import static org.lwjgl.opengl.GL11.*;
 
 public class slRenderEngine {
-    private final int TRIANGLES_PER_CIRCLE = 40;
-    private final float C_RADIUS = 0.05f;
-    private final int MAX_CIRCLES = 100;
-    private final int UPDATE_INTERVAL = 10;
-
     private Random random;
+    private final int MIN_SIDES = slSpot.MIN_SIDES;
+    private final int MAX_SIDES = slSpot.MAX_SIDES;
+    private final int UPDATE_INTERVAL = slSpot.FRAME_DELAY;
+    private int currentSides;
+    private float[] currentColor;
 
     public slRenderEngine() {
         random = new Random();
-    };
+        currentSides = MIN_SIDES;
+        currentColor = generateRandomColor();
+    }
 
-    public void initOpenGL(slWindowManager windowManager){
+    public void initOpenGL(slWindowManager windowManager) {
         GL.createCapabilities();
         int[] windowSize = windowManager.getWindowSize();
         glViewport(0, 0, windowSize[0], windowSize[1]);
@@ -28,23 +32,39 @@ public class slRenderEngine {
         glClearColor(CC_RED, CC_GREEN, CC_BLUE, CC_ALPHA);
     }
 
-    public void render(){
-        while(!slWindowManager.isGlfwWindowClosed()){
+    public void render() {
+        while (!slWindowManager.isGlfwWindowClosed()) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            for(int i = 0; i < MAX_CIRCLES; i++){
-                float[] color = generateRandomColor();
-                float[] position = generateRandomPosition();
+            int rows = slSpot.NUM_ROWS;
+            int cols = slSpot.NUM_COLS;
+            float cellWidth = 2.0f / cols;
+            float cellHeight = 2.0f / rows;
+            float radius = (Math.min(cellWidth, cellHeight) / 2);
 
-                glColor4f(color[0], color[1], color[2], color[3]);
-                drawCircle(position[0], position[1], C_RADIUS);
+            glColor4f(currentColor[0], currentColor[1], currentColor[2], currentColor[3]);
+
+            for (int row = 0; row < rows; row++) {
+                for (int col = 0; col < cols; col++) {
+                    float x = -1.0f + (col * cellWidth) + (cellWidth / 2);
+                    float y = 1.0f - (row * cellHeight) - (cellHeight / 2);
+
+                    drawPolygon(x, y, radius, currentSides);
+                }
             }
+
+            currentSides++;
+            if (currentSides > MAX_SIDES) {
+                currentSides = MIN_SIDES;
+            }
+
+            currentColor = generateRandomColor();
 
             slWindowManager.get().swapBuffers();
             GLFW.glfwPollEvents();
 
             try {
-                Thread.sleep((long)(UPDATE_INTERVAL * 10));
+                Thread.sleep(UPDATE_INTERVAL);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -53,28 +73,21 @@ public class slRenderEngine {
         slWindowManager.get().destroyGlfwWindow();
     }
 
-    private void drawCircle(float x, float y, float radius){
+    private void drawPolygon(float x, float y, float radius, int sides) {
         glBegin(GL_TRIANGLE_FAN);
         glVertex2f(x, y);
 
-        for(int i = 0; i <= TRIANGLES_PER_CIRCLE; i++){
-            double angle = 2 * Math.PI * i / TRIANGLES_PER_CIRCLE;
-            float dx = (float)(radius * Math.cos(angle));
-            float dy = (float)(radius * Math.sin(angle));
+        for (int i = 0; i <= sides; i++) {
+            double angle = 2 * Math.PI * i / sides;
+            float dx = (float) (radius * Math.cos(angle));
+            float dy = (float) (radius * Math.sin(angle));
             glVertex2f(x + dx, y + dy);
         }
 
         glEnd();
     }
 
-    private float[] generateRandomColor(){
-        return new float[] { random.nextFloat(), random.nextFloat(), random.nextFloat(), 1.0f };
-    }
-
-    private float[] generateRandomPosition(){
-        float x = -1.0f + C_RADIUS + (random.nextFloat() * (2.0f - 2 * C_RADIUS));
-        float y = -1.0f + C_RADIUS + (random.nextFloat() * (2.0f - 2 * C_RADIUS));
-        return new float[]{x, y};
+    private float[] generateRandomColor() {
+        return new float[]{random.nextFloat(), random.nextFloat(), random.nextFloat(), 1.0f};
     }
 }
-
